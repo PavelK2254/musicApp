@@ -5,6 +5,7 @@ import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -13,17 +14,24 @@ import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.MediaController;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import com.example.development.myapplication.R;
 
 import java.io.IOException;
 
-public class PlayerFragment extends Fragment implements MediaPlayer.OnPreparedListener,MediaController.MediaPlayerControl,SurfaceHolder.Callback {
+
+
+public class PlayerFragment extends Fragment implements MediaPlayer.OnPreparedListener,MediaController.MediaPlayerControl,SurfaceHolder.Callback,MediaPlayer.OnErrorListener {
 
     MediaController mediaController;
     MediaPlayer mediaPlayer;
     SurfaceView surfaceView;
     SurfaceHolder surfaceHolder;
+    Snackbar mySnackbar;
+   TextView mNowPlayingText;
+    private ProgressBar spinner;
 
     @Nullable
     @Override
@@ -34,15 +42,22 @@ public class PlayerFragment extends Fragment implements MediaPlayer.OnPreparedLi
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-            mediaPlayer = new MediaPlayer();
+        spinner = (ProgressBar)view.findViewById(R.id.progressBar1);
+        spinner.setVisibility(View.VISIBLE);
+        mediaPlayer = new MediaPlayer();
         mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
         mediaPlayer.setOnPreparedListener(this);
+        mediaPlayer.setOnErrorListener(this);
+        mySnackbar = Snackbar.make(getView(), getActivity().getString(R.string.video_fail_error), Snackbar.LENGTH_SHORT);
         try {
             mediaPlayer.setDataSource(getArguments().getString("url"));
         } catch (IOException e) {
             e.printStackTrace();
+            mySnackbar.show();
+            closeFragment();
         }catch (NullPointerException e){
-            getActivity().getSupportFragmentManager().popBackStackImmediate();
+            mySnackbar.show();
+            closeFragment();
         }
         mediaController = new MediaController(this.getActivity());
         surfaceView = getView().findViewById(R.id.surfaceViewMain);
@@ -62,6 +77,10 @@ public class PlayerFragment extends Fragment implements MediaPlayer.OnPreparedLi
 
     }
 
+    private void closeFragment(){
+        getActivity().getSupportFragmentManager().popBackStackImmediate();
+    }
+
 
     @Override
     public void onPrepared(MediaPlayer mp) {
@@ -70,7 +89,7 @@ public class PlayerFragment extends Fragment implements MediaPlayer.OnPreparedLi
         mediaController.setEnabled(true);
         mp.start();
         mediaController.show();
-
+        spinner.setVisibility(View.GONE);
 
     }
 
@@ -156,5 +175,12 @@ public class PlayerFragment extends Fragment implements MediaPlayer.OnPreparedLi
     @Override
     public void surfaceDestroyed(SurfaceHolder holder) {
 
+    }
+
+    @Override
+    public boolean onError(MediaPlayer mp, int what, int extra) {
+        mySnackbar.show();
+        closeFragment();
+        return false;
     }
 }

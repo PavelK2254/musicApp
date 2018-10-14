@@ -1,6 +1,7 @@
 package com.example.development.myapplication;
 
 import android.support.v4.app.FragmentTransaction;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -26,6 +27,8 @@ public class MainActivity extends AppCompatActivity implements ILoaderCallback, 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        ActionBar actionBar = getSupportActionBar();
+        actionBar.hide();
         mainWebView = findViewById(R.id.mainWebView);
         mainWebView.setWebViewClient(new MainWebClient(this,this.getBaseContext()));
         mainWebView.getSettings().setJavaScriptEnabled(true);
@@ -42,15 +45,18 @@ public class MainActivity extends AppCompatActivity implements ILoaderCallback, 
         }
     }
 
+
+
     @Override
     public void getResponse(String response) {
-        Log.d("Network response", response);
         YoulinkObjectModel[] youLinkObjectsArray = gson.fromJson(response,YoulinkObjectModel[].class);
         fragmentTransaction = getSupportFragmentManager().beginTransaction();
         PlayerFragment playerFragment = new PlayerFragment();
         Bundle bundle = new Bundle();
         bundle.putString("url",youLinkObjectsArray[0].url);
+
         playerFragment.setArguments(bundle);
+        fragmentTransaction.setCustomAnimations(R.anim.slide_in,R.anim.slide_out);
         fragmentTransaction.add(R.id.mainContainer,playerFragment).addToBackStack("player").commitAllowingStateLoss();
 
     }

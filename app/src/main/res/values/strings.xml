@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">My Application</string>
     <string name="homepage">http://www.youtube.com</string>
+    <string name="video_fail_error">Sorry the video cannot be played</string>
 </resources>

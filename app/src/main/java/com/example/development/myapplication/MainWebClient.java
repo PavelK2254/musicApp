@@ -30,12 +30,15 @@ public class MainWebClient extends WebViewClient {
     @Override
     public void onLoadResource(WebView view, String url) {
         super.onLoadResource(view, url);
+
         if(url.contains("---")){
+            Log.d(TAG, url);
             view.stopLoading();
             view.loadUrl(parentContext.getString(R.string.homepage));
 
         }
         if(url.contains("watch?v=")){
+            Log.d(TAG, url);
             ic.pageIntercepted(url);
 
         }
